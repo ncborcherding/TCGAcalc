@@ -1,0 +1,27 @@
+---
+title: "Processing Data"
+author: "Nicholas Borcherding"
+date: "4/19/2022"
+output: html_document
+---
+
+This is a R markdown of the steps used to format the TCGA data - it can be ignored if you are just looking to check the prognostic value of a gene across cancers. 
+
+```{r}
+RNA.files <- list.files("./data", pattern = "HiSeq")
+names <- stringr::str_split(RNA.files, "_", simplify = TRUE)[,2]
+RNA.files <- lapply(seq_len(length(RNA.files)), function(x) {
+  read.delim(paste0("./data/", RNA.files[[x]]), header = TRUE, row.names = 1, check.names = FALSE)
+})
+names(RNA.files) <- names
+
+Clinical.files <- list.files("./data", pattern = "survival")
+Clinical.files <- lapply(seq_len(length(Clinical.files)), function(x) {
+  read.delim(paste0("./data/", Clinical.files[[x]]), header = TRUE, row.names = 1, check.names = FALSE)
+})
+names(Clinical.files) <- names
+
+TCGAcalc.Data <- list(RNA = RNA.files, Survival = Clinical.files)
+saveRDS(TCGAcalc.Data, file = "TCGAcalc.Data.rds")
+```
+

@@ -1,0 +1,27 @@
+---
+title: "Using TCGAcalc"
+author: "Nicholas Borcherding"
+date: "4/19/2022"
+output: html_document
+---
+```{r}
+library(ggplot2)
+library(dplyr)
+library(stringr)
+library(survival)
+library(survminer)
+source("./R/functions.R")
+
+checkGene(gene = "MXRA8",
+          cut.off = "median")
+ggsave("MXRA8.median.cutoff.pdf")
+
+checkGene(gene = "MXRA8",
+          cut.off = "optimum")
+ggsave("MXRA8.optimum.cutoff.pdf")
+
+checkGene(gene = "UCP1",
+          cut.off = "median")
+ggsave("UCP1.median.cutoff.pdf")
+```
+
