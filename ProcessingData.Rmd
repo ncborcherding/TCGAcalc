@@ -23,5 +23,43 @@ names(Clinical.files) <- names
 
 TCGAcalc.Data <- list(RNA = RNA.files, Survival = Clinical.files)
 saveRDS(TCGAcalc.Data, file = "TCGAcalc.Data.rds")
+
+"%!in%" <- Negate("%in%")
+phenotype.files <- list.files("./data", pattern = "clinicalMatrix")
+phenotype.files <- lapply(seq_len(length(phenotype.files)), function(x) {
+  read.delim(paste0("./data/", phenotype.files[[x]]), header = TRUE, row.names = 1, check.names = FALSE)
+})
+names(phenotype.files) <- names
+
+columns.to.remove <- colnames(phenotype.files[[1]])[c(1:10,111:129)]
+for (i in seq_along(phenotype.files)) {
+  tmp <- phenotype.files[[i]]
+  if(names(phenotype.files)[i] %!in% c("SKCM", "LAML")) {
+    tmp <- tmp[-which(grepl("-06|-11|-02|-05", rownames(tmp))),] #remvoing nontumor samples in all but SKCM
+  } else if (names(phenotype.files)[i] == "SKCM"){
+    sample.id <- substr(rownames(tmp), 1, nchar(rownames(tmp))-3)
+    sample.id <- sample.id[which(duplicated(sample.id))]
+    for (j in seq_along(sample.id)) {
+      id.tmp <- rownames(tmp[grep(paste0(sample.id[j]),rownames(tmp)),])
+      if (length(which(grepl("-01", id.tmp))) == 0) {
+        id.tmp <- id.tmp[!grepl("-06", id.tmp)]
+        tmp <- tmp[-which(rownames(tmp) == id.tmp),]
+      } else {
+        id.tmp <- id.tmp[!grepl("-01", id.tmp)]
+        tmp <- tmp[-which(rownames(tmp) == id.tmp),]
+      }
+      
+    }
+    
+    
+    
+  }
+  tmp <- tmp[,-which(columns.to.remove %in% colnames(tmp))]
+  rownames(tmp) <- substr(rownames(tmp), 1, nchar(rownames(tmp))-3)
+  phenotype.files[[i]] <- tmp
+}
+
+
+TCGAcalc.Data[[3]] <- phenotype.files
 ```
 
